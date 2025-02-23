@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Đề Tài</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white;
+            transition: background 0.5s;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        #filter-box {
+            margin-bottom: 20px;
+        }
+
+        #selected-topic-info {
+            background-color: #e0f7fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            width: 80%;
+        }
+
+        #group-info {
+            width: 80%;
+            height: 150px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .selected-row {
+            background-color: #f0f0f0;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Danh sách đề tài mở cho đăng ký</div>
+
+    <div id="filter-box">
+        <label for="filter-code">Tìm kiếm theo mã đề tài: </label>
+        <input type="text" id="filter-code" placeholder="Nhập mã đề tài" oninput="filterTable()">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Mã Đề Tài</th>
+                <th>Tên Đề Tài</th>
+                <th>Mô Tả</th>
+                <th>Số Lượng SV Tối Đa</th>
+                <th>Hạn Nộp</th>
+                <th>Giảng Viên</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-1">
+        </tbody>
+    </table>
+
+    <div id="selected-topic-info" style="display: none;">
+        <strong>Đề tài đã chọn:</strong><br>
+        <span id="selected-topic-text"></span>
+    </div>
+
+    <textarea id="group-info" placeholder="Nhập thông tin nhóm (Tên nhóm, trưởng nhóm, số lượng sinh viên...)"></textarea>
+
+    <button id="submit-btn"><i class="fas fa-paper-plane"></i> Gửi đi</button>
+    <button id="reset-btn"><i class="fas fa-undo"></i> Reset</button>
+
+    <script>
+        const data = [
+            { maDeTai: "KH03", ten: "Đề tài 1", moTa: "Mô tả đề tài 1", soLuongSV: 5, hanNop: "15/03/2025", giangVien: "Nguyễn Văn A" },
+            { maDeTai: "KH04", ten: "Đề tài 2", moTa: "Mô tả đề tài 2", soLuongSV: 3, hanNop: "20/03/2025", giangVien: "Trần Thị B" },
+        ];
+
+        const tableBody1 = document.getElementById("data-table-1");
+        const selectedTopicInfo = document.getElementById("selected-topic-info");
+        const selectedTopicText = document.getElementById("selected-topic-text");
+        const groupInfo = document.getElementById("group-info");
+
+        let selectedTopic = null;
+
+        function renderTable(tableBody, data) {
+            tableBody.innerHTML = "";
+            data.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" id="check-${index}">
+                    </td>
+                    <td>${item.maDeTai}</td>
+                    <td>${item.ten}</td>
+                    <td>${item.moTa}</td>
+                    <td id="soLuongSV-${index}">${item.soLuongSV}</td>
+                    <td>${item.hanNop}</td>
+                    <td>${item.giangVien}</td>
+                `;
+                tableBody.appendChild(row);
+
+                const checkbox = document.getElementById(`check-${index}`);
+                checkbox.addEventListener('change', () => selectTopic(index));
+            });
+        }
+
+        function filterTable() {
+            const filterValue = document.getElementById("filter-code").value.toLowerCase();
+            const filteredData = data.filter(item => item.maDeTai.toLowerCase().includes(filterValue));
+            renderTable(tableBody1, filteredData);
+        }
+
+        function selectTopic(index) {
+            const checkbox = document.getElementById(`check-${index}`);
+            const row = checkbox.parentElement.parentElement;
+            if (checkbox.checked) {
+                selectedTopic = { ...data[index] };
+                selectedTopicText.textContent = `Mã: ${selectedTopic.maDeTai}, Tên: ${selectedTopic.ten}, Giảng viên: ${selectedTopic.giangVien}`;
+                selectedTopicInfo.style.display = "block";
+                row.classList.add('selected-row');
+            } else {
+                selectedTopic = null;
+                selectedTopicInfo.style.display = "none";
+                row.classList.remove('selected-row');
+            }
+        }
+
+        function submitRegistration() {
+            if (!selectedTopic) {
+                alert("Vui lòng chọn đề tài!");
+                return;
+            }
+            if (!groupInfo.value.trim()) {
+                alert("Vui lòng nhập thông tin nhóm!");
+                return;
+            }
+            alert("Đăng ký thành công!\nThông tin đề tài: " + selectedTopicText.textContent + "\nThông tin nhóm: " + groupInfo.value);
+        }
+
+        function resetForm() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                cb.parentElement.parentElement.classList.remove('selected-row');
+            });
+            selectedTopic = null;
+            selectedTopicInfo.style.display = "none";
+            groupInfo.value = "";
+        }
+
+        document.getElementById('submit-btn').addEventListener('click', submitRegistration);
+        document.getElementById('reset-btn').addEventListener('click', resetForm);
+        renderTable(tableBody1, data);
+    </script>
+</body>
+</html>
